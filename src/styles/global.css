@@ -1,0 +1,177 @@
+:root {
+  color-scheme: light;
+  --ink: #1c1916;
+  --muted: #5c564e;
+  --line: #ddd6cb;
+  --paper: #f6f3ee;
+  --link: #1d3d5c;
+  --focus: #1d3d5c;
+  --measure: 38rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.16em;
+}
+
+a:hover {
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  transform: translateY(-120%);
+  background: var(--paper);
+  padding: 0.4rem 0.6rem;
+}
+
+.skip:focus {
+  transform: none;
+}
+
+.frame {
+  width: min(var(--measure), calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding: 2.25rem 0 4rem;
+}
+
+header {
+  margin-bottom: 2.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-name {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.site-name a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-name a:hover {
+  text-decoration: underline;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.98rem;
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav a:hover,
+nav a[aria-current="page"] {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+h2 {
+  margin: 2rem 0 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+.portrait {
+  display: block;
+  width: 11.5rem;
+  height: auto;
+  margin: 0 0 1.25rem;
+}
+
+.dateline {
+  margin: -0.35rem 0 1.35rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.links {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.links li {
+  margin: 0.2rem 0;
+}
+
+.index {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.index li {
+  margin: 0.45rem 0;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 1.05rem;
+  }
+
+  .frame {
+    width: min(var(--measure), calc(100% - 1.75rem));
+    padding-top: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.45rem;
+  }
+}

@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="Permission-aware AI incident investigation — Christopher Uzochukwu"
+  description="Christopher Uzochukwu’s write-up of a permission-aware investigation workflow he built at Mews."
+>
+  <h1>Permission-aware AI incident investigation</h1>
+  <p class="dateline">Christopher Uzochukwu · 26 October 2026 · Africa/Lagos</p>
+
+  <h2>Problem</h2>
+  <p>
+    At Mews, one of the harder operational problems was investigating failures across hotel-system
+    integrations. A single customer report could require an engineer to search support tickets,
+    application logs, traces, API responses and database records before reconstructing what actually
+    happened. The initial symptom was often misleading: what looked like an application bug could be
+    an upstream API change, stale credentials, malformed customer data, an out-of-order event or a
+    partial failure during a retry. Complex investigations could take up to three days because the
+    evidence was fragmented across different systems.
+  </p>
+
+  <h2>Constraints</h2>
+  <p>
+    The main constraints were security, incomplete evidence and the unreliability of probabilistic
+    output. Engineers had different access permissions, and the workflow could not expose data simply
+    because the model requested it. External systems could also return incomplete or contradictory
+    information. I therefore enforced permissions before retrieval, recorded every investigation step,
+    categorized tool failures separately from product failures, and made uncertainty explicit. The
+    system never automatically changed production data or closed an incident; an engineer remained
+    responsible for verifying the evidence and deciding what action to take.
+  </p>
+
+  <h2>Architecture</h2>
+  <p>
+    Deterministic code handled retrieval, filtering, correlation and timeline construction. An LLM
+    was then used to summarize the evidence, identify likely failure categories and suggest the next
+    diagnostic step. Its output followed a defined structure and included the evidence behind each
+    conclusion rather than presenting an unsupported answer.
+  </p>
+
+  <h2>Contribution</h2>
+  <p>
+    I built a Python-based investigation workflow that collected the relevant evidence and organized
+    it into a single, traceable investigation. I chose a narrower workflow in which deterministic
+    tools gathered evidence and the model assisted with synthesis.
+  </p>
+
+  <h2>Trade-offs</h2>
+  <p>
+    The central trade-off was speed versus confidence. Giving the model more autonomy could have
+    produced faster-looking answers, but it also increased the risk of a confident diagnosis based on
+    missing context. I chose a narrower workflow in which deterministic tools gathered evidence and
+    the model assisted with synthesis. That made the system less impressive as an autonomous agent,
+    but considerably safer and more useful during real incidents.
+  </p>
+
+  <h2>Outcome</h2>
+  <p>
+    For representative complex cases, it reduced investigation time from as much as three days to
+    approximately one hour.
+  </p>
+
+  <h2>What I would improve</h2>
+  <p>
+    If I rebuilt it today, I would create a versioned evaluation dataset from previously resolved
+    incidents and measure diagnostic accuracy, evidence coverage, latency and cost before every
+    release. I would also add stronger per-tool authorization, automated redaction, replayable
+    investigation traces and a feedback mechanism that distinguishes an incorrect diagnosis from
+    missing evidence. Finally, I would integrate approved runbooks through retrieval, while keeping
+    production changes behind explicit human confirmation.
+  </p>
+</Base>
