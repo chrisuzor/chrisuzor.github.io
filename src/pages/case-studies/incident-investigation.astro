@@ -19,6 +19,10 @@ import Base from '../../layouts/Base.astro';
     partial failure during a retry. Complex investigations could take up to three days because the
     evidence was fragmented across different systems.
   </p>
+  <p>
+    The same Mews role covered 25+ hotel, payment, and operational integrations serving 1,000+
+    properties. That is the scope of the integrations, not a count of investigations.
+  </p>
 
   <h2>Constraints</h2>
   <p>
@@ -38,12 +42,12 @@ import Base from '../../layouts/Base.astro';
     diagnostic step. Its output followed a defined structure and included the evidence behind each
     conclusion rather than presenting an unsupported answer.
   </p>
+  <p class="flow">Engineer request → Permission check → Evidence retrieval → Timeline construction → LLM synthesis → Human verification</p>
 
   <h2>Contribution</h2>
   <p>
     I built a Python-based investigation workflow that collected the relevant evidence and organized
-    it into a single, traceable investigation. I chose a narrower workflow in which deterministic
-    tools gathered evidence and the model assisted with synthesis.
+    it into a single, traceable investigation.
   </p>
 
   <h2>Trade-offs</h2>
