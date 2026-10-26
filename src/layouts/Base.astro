@@ -12,9 +12,12 @@ const path = Astro.url.pathname;
 const links = [
   { href: '/', label: 'Home' },
   { href: '/case-studies/incident-investigation/', label: 'Case study' },
-  { href: '/repositories/', label: 'Repositories' },
+  { href: '/repositories/', label: 'Projects' },
   { href: '/cv/', label: 'CV' },
 ];
+
+const shareDescription =
+  'I build reliable APIs, integrations, distributed workflows, and AI-assisted operational tools.';
 
 function current(href: string) {
   if (href === '/') return path === '/';
@@ -30,6 +33,14 @@ function current(href: string) {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(path, Astro.site)} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={shareDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={new URL(path, Astro.site)} />
+    <meta property="og:image" content={new URL('/christopher-uzochukwu-portrait.jpg', Astro.site)} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={shareDescription} />
   </head>
   <body>
     <a class="skip" href="#content">Skip to content</a>
