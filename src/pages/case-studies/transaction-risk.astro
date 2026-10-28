@@ -1,0 +1,83 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="Transaction risk — Christopher Uzochukwu"
+  description="A synthetic card-not-present risk baseline: logistic regression, a frozen threshold, a population-stability check, and an offline shadow threshold."
+>
+  <h1>Transaction risk</h1>
+  <p class="dateline">Christopher Uzochukwu · 27 October 2026 · Africa/Lagos</p>
+  <p>
+    Public repository: <a href="https://github.com/chrisuzor/transaction-risk">github.com/chrisuzor/transaction-risk</a>.
+    Every row is synthetic. The generator draws each field from a fixed-seed random distribution.
+  </p>
+
+  <h2>Problem</h2>
+  <p>
+    Card-not-present payments are authorized without the physical card, so a risk score is often
+    computed before a decision. This repository is a small public baseline of that shape: a
+    fixed-seed generator, a logistic regression, one frozen threshold, and an HTTP API that returns
+    a score plus the threshold decision.
+  </p>
+
+  <h2>Classical baseline</h2>
+  <p>
+    The baseline is a logistic regression, <code>baseline-v1</code>, trained with seed 42 on 20000
+    synthetic rows. The split is stratified: 70% train, 15% validation, and 15% test (14000 / 3000
+    / 3000). Labels are a noisy linear function of the derived features. The trainer does not
+    read those label weights. Validation is used only to freeze the threshold. Precision, recall,
+    and the confusion counts below are the test split. The API scores with the committed JSON
+    coefficients.
+  </p>
+
+  <h2>Threshold</h2>
+  <p>
+    The operating point is recall-oriented. On the validation split the trainer keeps the highest
+    threshold on a 0.001 grid with validation recall at least 0.90. That cutoff is 0.112.
+    Validation recall at this threshold is 0.9045.
+  </p>
+  <p>
+    On the held-out test split, at threshold 0.112, precision is 0.3558 and recall is 0.8803. False
+    positives: 985. False negatives: 74. True positives: 544. True negatives: 1397. The synthetic
+    positive rate on the test split is 0.2060. A lower threshold would flag more rows. A higher
+    threshold would miss more synthetic fraud labels. No monetary loss is used.
+  </p>
+
+  <h2>Drift</h2>
+  <p>
+    Both windows are synthetic. The reference is the training split of the seed-42 generator. The
+    unshifted holdout is the test split of that same draw. The shifted window is a separate
+    fixed-seed draw of 3000 rows whose amounts, velocity, distance, ages, and flags come from
+    different distributions. The statistic is the population stability index. A window is stable
+    when every model-feature PSI and the score PSI are below 0.25. A value at or above 0.25 is not
+    stable. The 0.25 cutoff is the usual significant-shift mark for PSI.
+  </p>
+  <p>
+    Unshifted score PSI is 0.0030, and that window is stable. Shifted score PSI is 12.4338, and
+    that window is not stable.
+  </p>
+
+  <h2>Shadow challenger</h2>
+  <p>
+    The champion is <code>baseline-v1</code>. Its threshold decision is the one the API would
+    return. The challenger is a second threshold, 0.50, on those same scores. It is the conventional
+    probability cutoff, stricter than the champion’s 0.112, and it is shadow-only. The batch is the
+    synthetic test split: 3000 rows from seed 42.
+  </p>
+  <p>
+    Agreement is 1826/3000. The challenger has 118 false positives and 381 false negatives.
+    Every disagreement on this batch is a champion flag with a challenger allow. This comparison is
+    an offline shadow on one synthetic batch.
+  </p>
+
+  <h2>Why a second algorithm was not used</h2>
+  <p>
+    A gradient boosting model trained on the same seed and the same split was a worse fit. The
+    synthetic labels are a noisy linear function of the model features, so logistic regression is
+    the matched model. On the test split the boosting fit had higher log loss (0.389 versus 0.374),
+    a higher Brier score (0.122 versus 0.118), and more false positives at the same
+    validation-recall rule (1067 versus 985). Gradient boosting is not a second algorithm in this
+    repository. The challenger stays a 0.50 threshold on the logistic scores.
+  </p>
+</Base>
