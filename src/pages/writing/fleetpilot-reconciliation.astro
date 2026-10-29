@@ -12,11 +12,19 @@ import Base from '../../layouts/Base.astro';
     Public repository: <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a>.
   </p>
   <p>
-    FleetPilot is a Go control plane for a simulated fleet. PostgreSQL stores the fleet that was
-    requested. A fake provider in the same process stores the fleet that exists. Image, size, and
-    region are labels on that provider. It does not boot a machine, and it does not call a cloud
-    API. The loop under those two copies is the part worth reading: compare, lock one name, apply,
-    and stop retrying.
+    You and a housemate share a list on the counter. You look, see no rice, and add rice. They are
+    holding an older copy, so they add rice too. Dinner is fine. The cupboard is not.
+  </p>
+  <p>
+    Then the shop is closed. You walk back. You walk back again. Four times, a little longer
+    between each try, and the shutter is still down. A fifth walk does not open it. You put the
+    pencil down, so that line on the list is free for someone to look at later.
+  </p>
+  <p>
+    FleetPilot is that problem for a simulated fleet. The list you asked for sits in PostgreSQL.
+    The list of what exists sits in a fake provider in the same process. Image, size, and region
+    are labels on that provider. It does not boot a machine, and it does not call a cloud API. The
+    rest of this page is how the code avoids the rice thing.
   </p>
 
   <h2>Reconcile writes jobs, and nothing else</h2>
