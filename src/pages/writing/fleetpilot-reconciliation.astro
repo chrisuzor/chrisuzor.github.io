@@ -12,19 +12,28 @@ import Base from '../../layouts/Base.astro';
     Public repository: <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a>.
   </p>
   <p>
-    You and a housemate share a list on the counter. You look, see no rice, and add rice. They are
-    holding an older copy, so they add rice too. Dinner is fine. The cupboard is not.
+    Dayo and Ayo are housemates. One morning, before leaving for work, Dayo checks the cupboard and sees that there is no rice. He decides he will buy a bag on his way home.
   </p>
   <p>
-    Then the shop is closed. You walk back. You walk back again. Four times, a little longer
-    between each try, and the shutter is still down. A fifth walk does not open it. You put the
-    pencil down, so that line on the list is free for someone to look at later.
+    Ayo leaves about an hour later. He checks the same cupboard, sees the same empty space and makes the same decision. Neither of them mentions it to the other.
   </p>
   <p>
-    FleetPilot is that problem for a simulated fleet. The list you asked for sits in PostgreSQL.
-    The list of what exists sits in a fake provider in the same process. Image, size, and region
-    are labels on that provider. It does not boot a machine, and it does not call a cloud API. The
-    rest of this page is how the code avoids the rice thing.
+    That evening, Dayo comes home with a bag of rice. Ayo also comes home with a bag of rice. The original problem has been solved, but now they have twice as much rice as they need and the cupboard can barely close.
+  </p>
+  <p>
+    This is a race condition. Dayo and Ayo both looked at the same state and acted on it before either knew what the other was doing. Fleet reconcilers can make the same mistake. Two workers can both see that a machine is missing and both try to create it.
+  </p>
+  <p>
+    Now Dayo and Ayo notice the extra rice and, somehow, both independently decide to return one bag. If the shop were open, they would solve the problem in reverse and come home with no rice again. But the shop is closed.
+  </p>
+  <p>
+    They return home and try again later. Still closed. They wait a little longer and make another trip. Still closed. After spending the evening walking back and forth, it becomes clear that another trip is unlikely to change anything. At that point, the sensible thing is to stop trying and leave the problem somewhere visible so it can be dealt with later.
+  </p>
+  <p>
+    FleetPilot is a simulation of these two problems: preventing duplicate work when reconcilers run at the same time, and retrying failed work without retrying forever.
+  </p>
+  <p>
+    The desired fleet is stored in PostgreSQL. What currently exists is stored in a fake provider running in the same process. A machine in that provider is only a record with an image, size and region. FleetPilot does not boot a real server or call a cloud API. The infrastructure is fake, but the coordination problems are real.
   </p>
 
   <h2>Reconcile writes jobs, and nothing else</h2>
