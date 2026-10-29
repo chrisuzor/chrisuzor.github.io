@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="Desired state, one lock, and a short retry — Christopher Uzochukwu"
+  description="How FleetPilot reconciles a simulated fleet, locks one instance with Postgres, and stops retrying on the fifth provider failure."
+>
+  <h1>Desired state, one lock, and a short retry</h1>
+  <p class="dateline">Christopher Uzochukwu · 29 October 2026 · Africa/Lagos</p>
+  <p>
+    Public repository: <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a>.
+  </p>
+  <p>
+    FleetPilot is a Go control plane for a simulated fleet. PostgreSQL stores the fleet that was
+    requested. A fake provider in the same process stores the fleet that exists. Image, size, and
+    region are labels on that provider. It does not boot a machine, and it does not call a cloud
+    API. The loop under those two copies is the part worth reading: compare, lock one name, apply,
+    and stop retrying.
+  </p>
+
+  <h2>Reconcile writes jobs, and nothing else</h2>
+  <p>
+    A reconcile lists desired rows and lists the provider, then matches them by name. A name that
+    is only in desired state becomes a create job. A name on both sides with a different spec
+    becomes an update job. A name whose spec already matches is skipped. A name that exists only in
+    the provider becomes a delete job.
+  </p>
+  <p>
+    The reconciler does not call the provider’s create, update, or delete methods. Asking what
+    differs is a different step from changing the provider. The queue keeps at most one pending or
+    running job for a name. A second reconcile of the same difference does not insert another job.
+    A job that is already running is left alone. If the pending job’s operation or spec changed,
+    that job is updated and its attempt count returns to zero.
+  </p>
+  <p>
+    The worker is what calls the provider. Create and delete are safe to repeat. If the name is
+    already present, create returns success and does not call create again. If the name is already
+    gone, delete returns success. An update whose spec already matches returns without calling
+    update. The same checks apply when a running job is claimed again after 30 seconds without
+    moving. A retry should not apply the same change twice.
+  </p>
+
+  <h2>One row lock per instance</h2>
+  <p>
+    Before the provider call, the worker locks that instance name. On PostgreSQL it inserts the
+    name into <code>instance_locks</code> if the row is missing, then selects it with
+    <code>FOR UPDATE SKIP LOCKED</code>. The transaction stays open for the provider call and ends
+    when that call returns.
+  </p>
+  <p>
+    Skip-locked is the decision. A second applier that finds the row already held does not wait. It
+    gets no row, so it does not call the provider. The job goes back to pending, and the attempt
+    count does not move. It is ready again after one poll, 50 ms with the default settings. Waiting
+    on the row would hold a connection and a concurrency slot for work this process cannot do.
+    Skipping frees that slot for a different name.
+  </p>
+  <p>
+    Different names are different rows, so they can run together. The worker still bounds that. A
+    channel of size 4 means at most four jobs are in flight in one process. Four is the default
+    limit in the code, not a measured rate. Tests that do not start PostgreSQL use an in-memory
+    lock with the same rule: a name that is already held does not run the provider call.
+  </p>
+
+  <h2>Retry four times, then stop</h2>
+  <p>
+    A provider error is not a lock miss. The worker counts it. The default budget is five attempts.
+    After the first four failures the job returns to pending. The waits are 100 ms, 200 ms, 400 ms,
+    and 800 ms: a 100 ms base, doubled after each failure, and never above 5 seconds. The fifth
+    provider failure does not wait. The job is marked dead, and the name is free for a later
+    reconcile to enqueue a new job if the two sides still differ.
+  </p>
+  <p>
+    A held lock, or a cancelled context, is not one of those five. Those paths release the job and
+    leave the attempt count where it was. The budget is for the provider failing, not for two
+    workers colliding on the same name. Stopping at five keeps a permanent provider error from
+    pinning that name forever. The next reconcile can see the difference again and start a new job.
+  </p>
+
+  <h2>A rolling update, not a canary</h2>
+  <p>
+    A rollout uses the same jobs. It takes desired names in name order, writes the new spec onto
+    one instance, enqueues one update, and waits until that job succeeds. It then stores a health
+    check. A healthy check moves to the next name. An unhealthy check pauses the rollout. A dead
+    job pauses it as well and does not advance. There is no traffic split, and no subset is left
+    on the old spec for comparison. That is a rolling update. It is not a canary. The API does not
+    resume a paused rollout.
+  </p>
+
+  <h2>Who may ask</h2>
+  <p>
+    Routes under <code>/v1</code> read the <code>X-FleetPilot-Role</code> header. The value is
+    <code>reader</code> or <code>operator</code>. A missing or unknown value is 401. A reader on an
+    operator route is 403. Reconcile, instance writes, and starting a rollout require operator. A
+    reader can list instances and read a stored health check and the audit log. The header is a
+    label for local development. It is not a secret, and <code>GET /healthz</code> and
+    <code>GET /metrics</code> do not read it.
+  </p>
+</Base>

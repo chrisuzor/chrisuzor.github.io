@@ -13,6 +13,7 @@ const links = [
   { href: '/', label: 'Home' },
   { href: '/case-studies/incident-investigation/', label: 'Case study' },
   { href: '/case-studies/transaction-risk/', label: 'Transaction risk' },
+  { href: '/writing/', label: 'Writing' },
   { href: '/repositories/', label: 'Projects' },
   { href: '/cv/', label: 'CV' },
 ];
@@ -22,7 +23,8 @@ const shareDescription =
 
 function current(href: string) {
   if (href === '/') return path === '/';
-  return path === href || path === href.replace(/\/$/, '');
+  const normalized = href.endsWith('/') ? href : `${href}/`;
+  return path === href || path === href.replace(/\/$/, '') || path.startsWith(normalized);
 }
 ---
 
