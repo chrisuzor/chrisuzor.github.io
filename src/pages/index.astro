@@ -1,34 +1,49 @@
 ---
 import Base from '../layouts/Base.astro';
+import CaseStudyCards from '../components/CaseStudyCards.astro';
 ---
 
 <Base
   title="Christopher Uzochukwu — Senior Backend & Platform Engineer"
-  description="Senior backend and platform engineer. APIs, integrations, distributed workflows, and AI-assisted operational tools."
+  description="I build backend systems that remain reliable under load—from high-volume APIs and third-party integrations to distributed workflows and AI-assisted operational tools."
 >
-  <img
-    class="portrait"
-    src="/christopher-uzochukwu-portrait.jpg"
-    width="960"
-    height="1072"
-    alt="Portrait of Christopher Uzochukwu"
-  />
+  <picture>
+    <source srcset="/christopher-uzochukwu-portrait.webp" type="image/webp" />
+    <img
+      class="portrait"
+      src="/christopher-uzochukwu-portrait-480.jpg"
+      width="480"
+      height="536"
+      alt="Portrait of Christopher Uzochukwu"
+    />
+  </picture>
   <h1>Senior Backend &amp; Platform Engineer</h1>
   <p>
-    I build reliable APIs, integrations, distributed workflows, and AI-assisted operational tools. I
-    have 9+ years of experience across Python, Go, TypeScript, Java, C#, PHP, React, PostgreSQL,
-    AWS, and Docker.
+    I build backend systems that remain reliable under load—from high-volume APIs and third-party
+    integrations to distributed workflows and AI-assisted operational tools.
   </p>
+  <p class="meta">9+ years · Based in Nigeria · Remote worldwide · UTC+1</p>
   <ul class="actions">
-    <li><a href="/case-studies/incident-investigation/">View case study</a></li>
-    <li><a href="/repositories/">Explore projects</a></li>
+    <li><a href="/case-studies/">View engineering work</a></li>
     <li><a href="/christopher-uzochukwu-cv-public.pdf">Download CV</a></li>
-    <li><a href="mailto:christopheruzochukwu8@gmail.com">Contact me</a></li>
+    <li><a href="/contact/">Contact me</a></li>
   </ul>
   <h2>Evidence</h2>
   <ul class="highlights">
+    <li>500K+ daily API requests</li>
+    <li>99.999% API uptime</li>
     <li>25+ production integrations</li>
-    <li>Systems supporting 1,000+ hotel properties</li>
-    <li>Reduced complex incident investigation from up to three days to approximately one hour</li>
+    <li>1,000+ properties supported</li>
   </ul>
+  <h2>Case studies</h2>
+  <CaseStudyCards />
+  <h2>Experience</h2>
+  <ul class="experience">
+    <li>Mews — integrations and incident investigation</li>
+    <li>Flexkeeping — high-volume APIs and testing</li>
+    <li>Aardvark — Python microservices and AWS delivery</li>
+    <li>OpenTeams — Django, data processing and Go</li>
+    <li>JuiceServe — distributed EV-charging systems</li>
+  </ul>
+  <p><a href="/cv/">CV</a></p>
 </Base>

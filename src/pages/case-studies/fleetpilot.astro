@@ -1,0 +1,132 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="FleetPilot — Christopher Uzochukwu"
+  description="A simulated fleet reconciler in Go: desired state in PostgreSQL, a per-instance lock, bounded retries, and a fake in-process provider."
+>
+  <h1>FleetPilot</h1>
+  <p class="dateline">Christopher Uzochukwu · 29 October 2026 · Africa/Lagos</p>
+  <p>
+    <a href="https://github.com/chrisuzor/fleetpilot/actions/workflows/test.yml">
+      <img
+        class="badge"
+        alt="FleetPilot test workflow status"
+        src="https://github.com/chrisuzor/fleetpilot/actions/workflows/test.yml/badge.svg"
+        width="128"
+        height="20"
+      />
+    </a>
+  </p>
+  <p>
+    Public repository: <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a>.
+    Architecture: <a href="https://github.com/chrisuzor/fleetpilot/blob/main/docs/architecture.md">docs/architecture.md</a>.
+    The longer note is <a href="/writing/fleetpilot-reconciliation/">Desired state, one lock, and a short retry</a>.
+  </p>
+
+  <h2>Problem</h2>
+  <p>
+    Desired state and actual state drift. Two workers can both see that a machine is missing and
+    both try to create it. A provider error can also be retried until that name is stuck. FleetPilot
+    is a small Go control plane that keeps those two problems in one loop.
+  </p>
+
+  <h2 id="architecture">Loop</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 360 470" role="img" aria-labelledby="fleet-diagram-title fleet-diagram-desc">
+      <title id="fleet-diagram-title">FleetPilot reconcile loop</title>
+      <desc id="fleet-diagram-desc">
+        Desired state in PostgreSQL goes to the reconciler, then a job queue, then a worker. The
+        worker calls the fake provider and writes an audit log. PostgreSQL also stores the queue
+        and the audit log.
+      </desc>
+      <g fill="#f6f3ee" stroke="#1c1916" font-family="Georgia, Palatino, serif">
+        <rect x="40" y="8" width="280" height="52" />
+        <rect x="40" y="88" width="280" height="52" />
+        <rect x="40" y="168" width="280" height="52" />
+        <rect x="40" y="248" width="280" height="52" />
+        <rect x="16" y="336" width="156" height="52" />
+        <rect x="188" y="336" width="156" height="52" />
+        <rect x="40" y="416" width="280" height="44" />
+      </g>
+      <g fill="none" stroke="#1c1916">
+        <path d="M180 60 V78" />
+        <path d="M174 72 L180 82 L186 72" />
+        <path d="M180 140 V158" />
+        <path d="M174 152 L180 162 L186 152" />
+        <path d="M180 220 V238" />
+        <path d="M174 232 L180 242 L186 232" />
+        <path d="M180 300 V318 H94 V326" />
+        <path d="M180 318 H266 V326" />
+        <path d="M88 322 L94 332 L100 322" />
+        <path d="M260 322 L266 332 L272 322" />
+      </g>
+      <g fill="#1c1916" font-family="Georgia, Palatino, serif" text-anchor="middle">
+        <text x="180" y="30" font-size="15">Desired state</text>
+        <text x="180" y="48" font-size="12" fill="#5c564e">PostgreSQL</text>
+        <text x="180" y="120" font-size="15">Reconciler</text>
+        <text x="180" y="190" font-size="15">Job queue</text>
+        <text x="180" y="208" font-size="12" fill="#5c564e">PostgreSQL</text>
+        <text x="180" y="280" font-size="15">Worker</text>
+        <text x="94" y="358" font-size="14">Fake provider</text>
+        <text x="94" y="376" font-size="12" fill="#5c564e">in process</text>
+        <text x="266" y="358" font-size="14">Audit log</text>
+        <text x="266" y="376" font-size="12" fill="#5c564e">PostgreSQL</text>
+        <text x="180" y="443" font-size="13">At most four jobs in flight</text>
+      </g>
+    </svg>
+    <figcaption>
+      The reconciler compares desired rows with the fake provider and enqueues one job per
+      difference. It does not call create, update, or delete. The worker takes the name, applies
+      the job, and the audit log records the outcome.
+    </figcaption>
+  </figure>
+  <p>
+    The lock is a PostgreSQL row. The worker inserts the instance name into
+    <code>instance_locks</code> if needed and selects it <code>FOR UPDATE SKIP LOCKED</code>. A
+    second applier does not wait and does not call the provider. That miss does not count as an
+    attempt. Provider failures wait 100 ms, 200 ms, 400 ms, and 800 ms. The fifth provider failure
+    marks the job dead. Create and delete are safe to repeat, so a replay does not apply the same
+    change twice. A rollout updates one name at a time and pauses on an unhealthy check or a dead
+    job. It is a rolling update, not a canary. Routes under <code>/v1</code> read
+    <code>X-FleetPilot-Role</code> with the value <code>reader</code> or <code>operator</code>.
+  </p>
+
+  <h2>What it simulates</h2>
+  <p>
+    The provider is fake and in-process. Image, size, and region are labels. Reconcile, the lock,
+    the retry budget, health checks, and a one-name rolling update all run against that record.
+    Kubernetes manifests and an OpenTofu module describe a local layout. Traces go to stdout.
+  </p>
+
+  <h2>What it does not do</h2>
+  <p>
+    It does not boot a machine or call a cloud API. The role header is not a credential. GitHub
+    Actions runs <code>go test -race ./...</code>, lint, and a local image build. That test job
+    does not start PostgreSQL, and it does not apply the module or push the image. There is no live
+    traffic.
+  </p>
+
+  <h2>Tests</h2>
+  <p>From the repository:</p>
+  <pre><code>go test -race ./...</code></pre>
+  <p>
+    The latest run on main completed successfully. Unit tests use the in-memory queue and lock and
+    the fake provider.
+  </p>
+
+  <h2>Example request</h2>
+  <p>
+    Compose listens on <code>127.0.0.1:8080</code>. Create stores desired state. Reconcile enqueues
+    the difference. The worker applies it.
+  </p>
+  <pre><code>curl -sS -X POST http://127.0.0.1:8080/v1/instances \
+  -H 'X-FleetPilot-Role: operator' \
+  -H 'content-type: application/json' \
+  -d '&#123;"name":"web-1","image":"ubuntu-24.04","size":"small","region":"local"&#125;'</code></pre>
+  <pre><code>curl -sS -X POST http://127.0.0.1:8080/v1/reconcile \
+  -H 'X-FleetPilot-Role: operator'</code></pre>
+
+  <p><a href="/contact/">Contact me</a></p>
+</Base>

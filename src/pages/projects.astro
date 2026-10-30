@@ -1,0 +1,158 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Projects — Christopher Uzochukwu"
+  description="FleetPilot, Commerce Operations Console, and an open pull request to pressly/goose."
+>
+  <h1>Projects</h1>
+  <p>Two public repositories, and one open-source change.</p>
+
+  <h2>FleetPilot</h2>
+  <p>
+    <a href="https://github.com/chrisuzor/fleetpilot">Repository</a>
+    ·
+    <a href="https://github.com/chrisuzor/fleetpilot/actions/workflows/test.yml">CI</a>
+    ·
+    <a href="https://github.com/chrisuzor/fleetpilot/blob/main/docs/architecture.md">Architecture</a>
+    ·
+    <a href="/case-studies/fleetpilot/">Case study</a>
+  </p>
+  <p>
+    <a href="https://github.com/chrisuzor/fleetpilot/actions/workflows/test.yml">
+      <img
+        class="badge"
+        alt="FleetPilot test workflow status"
+        src="https://github.com/chrisuzor/fleetpilot/actions/workflows/test.yml/badge.svg"
+        width="128"
+        height="20"
+      />
+    </a>
+  </p>
+  <h3>Problem</h3>
+  <p>
+    Desired state and the provider can disagree, and two workers can try to create the same name.
+  </p>
+  <h3>Architecture</h3>
+  <p>
+    PostgreSQL stores the requested fleet, jobs, and an audit log. A reconciler enqueues the
+    difference. A worker applies it to a fake in-process provider. The case study has the diagram.
+  </p>
+  <h3>Engineering decision</h3>
+  <p>
+    The instance lock is <code>FOR UPDATE SKIP LOCKED</code>. A held row does not block the second
+    applier and does not spend a retry. Provider failures use a short budget, then the job is dead.
+  </p>
+  <h3>Failure mode</h3>
+  <p>
+    A provider error is retried at 100 ms, 200 ms, 400 ms, and 800 ms. The fifth failure marks the
+    job dead. A rolling update pauses on that dead job, or on an unhealthy check, and does not move
+    the next name.
+  </p>
+  <h3>Testing</h3>
+  <p><code>go test -race ./...</code> on every push. The tests do not start PostgreSQL.</p>
+  <h3>Stack</h3>
+  <p>Go, PostgreSQL, queues, OpenTelemetry, and Kubernetes manifests for a local layout.</p>
+  <h3>Limitations</h3>
+  <p>
+    The provider does not boot a machine or call a cloud API. The role header is not a credential.
+    The image is not pushed, and the OpenTofu module is validated rather than applied.
+  </p>
+
+  <h2>Commerce Operations Console</h2>
+  <p>
+    <a href="https://github.com/chrisuzor/commerce-ops-console">Repository</a>
+    ·
+    <a href="https://github.com/chrisuzor/commerce-ops-console/actions/workflows/ci.yml">CI</a>
+    ·
+    <a href="https://github.com/chrisuzor/commerce-ops-console/blob/main/ARCHITECTURE.md">Architecture</a>
+  </p>
+  <p>
+    <a href="https://github.com/chrisuzor/commerce-ops-console/actions/workflows/ci.yml">
+      <img
+        class="badge"
+        alt="Commerce Operations Console CI status"
+        src="https://github.com/chrisuzor/commerce-ops-console/actions/workflows/ci.yml/badge.svg"
+        width="100"
+        height="20"
+      />
+    </a>
+  </p>
+  <h3>Problem</h3>
+  <p>
+    Failed commerce orders need a record of what payment, fulfillment, and notification systems
+    already did, including deliveries that arrive twice or out of order.
+  </p>
+  <h3>Architecture</h3>
+  <p>
+    Events are an append-only history. A signed webhook or a GraphQL mutation accepts them. Order
+    state is rebuilt from those events. Operators can retry fulfillment or acknowledge an issue.
+    PostgreSQL is one mode. A seeded in-memory store is the other.
+  </p>
+  <h3>Engineering decision</h3>
+  <p>
+    Idempotency keys collapse duplicate deliveries. The incident summary is built only from stored
+    events.
+  </p>
+  <h3>Failure mode</h3>
+  <p>
+    A paid order that was never fulfilled, or a customer who was never notified. A repeated
+    delivery must not apply twice.
+  </p>
+  <h3>Testing</h3>
+  <p>
+    <code>make test</code> runs the Go and React tests. <code>make lint</code> runs
+    <code>go vet</code> and ESLint. <code>make build</code> builds the frontend and the Go binary.
+    CI runs those checks.
+  </p>
+  <h3>Stack</h3>
+  <p>Go, GraphQL, PostgreSQL, React, and TypeScript.</p>
+  <h3>Limitations</h3>
+  <p>
+    It is a portfolio sample, not a hosted order processor, and it is not the permission-aware
+    investigation workflow in the incident case study. The repository says authentication,
+    authorization, retention, migration tooling, and external fulfillment adapters are not in this
+    sample.
+  </p>
+
+  <h2>Goose: UTF-8 BOM before a migration directive</h2>
+  <p>
+    <a href="https://github.com/pressly/goose/pull/1157">Pull request 1157</a>
+    ·
+    <a href="https://github.com/pressly/goose">pressly/goose</a>
+  </p>
+  <h3>Problem</h3>
+  <p>
+    A SQL migration saved with a UTF-8 byte order mark fails to parse. The first line looks like
+    <code>-- +goose Up</code>, but <code>strings.TrimSpace</code> does not remove U+FEFF, so the
+    opening annotation never matches.
+  </p>
+  <h3>Architecture</h3>
+  <p>
+    The change is in the SQL parser. It strips one leading byte order mark from the first scanned
+    line, before the annotation check.
+  </p>
+  <h3>Engineering decision</h3>
+  <p>
+    Strip one leading UTF-8 BOM and leave UTF-16 byte order marks unchanged.
+  </p>
+  <h3>Failure mode</h3>
+  <p>
+    The parser reported <code>unexpected state 0</code> on the line
+    <code>-- +goose Up</code> when a UTF-8 BOM was present.
+  </p>
+  <h3>Testing</h3>
+  <p>
+    <code>TestUTF8ByteOrderMark</code> reproduces that case. The pull request says the test failed
+    with <code>unexpected state 0</code> before the change and passes after it. The command in the
+    commit is <code>go test ./internal/sqlparser/ -count=1</code>.
+  </p>
+  <h3>Stack</h3>
+  <p>Go.</p>
+  <h3>Limitations</h3>
+  <p>
+    The pull request is open. It does not show a completed status check. UTF-16 behaviour is
+    intentionally preserved. This is not a merged release.
+  </p>
+</Base>

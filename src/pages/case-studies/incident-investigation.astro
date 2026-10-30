@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Flow from '../../components/Flow.astro';
 ---
 
 <Base
@@ -35,14 +36,26 @@ import Base from '../../layouts/Base.astro';
     responsible for verifying the evidence and deciding what action to take.
   </p>
 
-  <h2>Architecture</h2>
+  <h2 id="architecture">Architecture</h2>
   <p>
     Deterministic code handled retrieval, filtering, correlation and timeline construction. An LLM
     was then used to summarize the evidence, identify likely failure categories and suggest the next
     diagnostic step. Its output followed a defined structure and included the evidence behind each
     conclusion rather than presenting an unsupported answer.
   </p>
-  <p class="flow">Engineer request → Permission check → Evidence retrieval → Timeline construction → LLM synthesis → Human verification</p>
+  <Flow
+    title="Incident investigation"
+    description="Request, then a permission check, evidence retrieval, a timeline, LLM synthesis, and human review."
+    caption="Permissions run before retrieval. A person reviews the result. The workflow does not change production data on its own."
+    steps={[
+      { label: 'Request' },
+      { label: 'Permission check' },
+      { label: 'Evidence retrieval' },
+      { label: 'Timeline' },
+      { label: 'LLM synthesis' },
+      { label: 'Human review' },
+    ]}
+  />
 
   <h2>Contribution</h2>
   <p>
@@ -74,4 +87,5 @@ import Base from '../../layouts/Base.astro';
     missing evidence. Finally, I would integrate approved runbooks through retrieval, while keeping
     production changes behind explicit human confirmation.
   </p>
+  <p><a href="/contact/">Contact me</a></p>
 </Base>

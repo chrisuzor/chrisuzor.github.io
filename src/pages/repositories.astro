@@ -1,41 +1,16 @@
----
-import Base from '../layouts/Base.astro';
----
-
-<Base
-  title="Projects — Christopher Uzochukwu"
-  description="Selected public projects demonstrating system design, engineering decisions, production trade-offs, automated testing and CI."
->
-  <h1>Projects</h1>
-  <p>Selected public projects demonstrating system design, engineering decisions, production trade-offs, automated testing and CI.</p>
-
-  <h2>FleetPilot</h2>
-  <p>
-    <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a> · <a href="https://github.com/chrisuzor/fleetpilot/blob/main/docs/architecture.md">architecture</a>
-  </p>
-  <p>
-    A Go control plane for a simulated fleet. Desired state lives in PostgreSQL. Reconciliation
-    compares it with actual state and enqueues a job for each difference. The worker retries
-    provider errors, takes a per-instance lock, and applies the job. Health checks can pause a
-    rolling update. An audit log records what changed, and reader and operator roles gate the API.
-    The process exposes metrics and traces. Kubernetes manifests and an OpenTofu module describe a
-    local layout.
-  </p>
-  <p>The provider is a local fake. It does not boot machines or use a cloud account.</p>
-
-  <h2>Commerce Operations Console</h2>
-  <p>
-    <a href="https://github.com/chrisuzor/commerce-ops-console">github.com/chrisuzor/commerce-ops-console</a>
-  </p>
-  <p>
-    It demonstrates investigation of failed commerce orders. Events from payment, fulfillment, and
-    notification systems are stored as an append-only history. Idempotency keys collapse duplicate
-    deliveries, and a deterministic summary is built only from stored events. The stack is Go,
-    GraphQL, PostgreSQL, React, and TypeScript. Go tests, <code>go vet</code>, and the React lint,
-    test, and build run in CI.
-  </p>
-  <p>
-    It is a portfolio sample, not a hosted order processor, and it is not the Mews permission-aware
-    investigation workflow.
-  </p>
-</Base>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Projects have moved — Christopher Uzochukwu</title>
+    <meta
+      name="description"
+      content="The projects page has moved. FleetPilot, Commerce Operations Console, and an open pull request to pressly/goose."
+    />
+    <link rel="canonical" href="https://chrisuzor.github.io/projects/" />
+    <meta http-equiv="refresh" content="0;url=/projects/" />
+  </head>
+  <body>
+    <p><a href="/projects/">Projects</a></p>
+  </body>
+</html>

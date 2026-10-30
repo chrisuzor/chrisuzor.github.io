@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Open source — Christopher Uzochukwu"
+  description="An open pull request to pressly/goose that strips a leading UTF-8 BOM before SQL migration directives."
+>
+  <h1>Open source</h1>
+  <p>
+    <a href="https://github.com/pressly/goose/pull/1157">pressly/goose pull request 1157</a> is open.
+    It fixes handling of UTF-8 BOMs before SQL migration directives, adds regression coverage, and
+    intentionally preserves UTF-16 behaviour.
+  </p>
+  <p>
+    A file whose first line is <code>-- +goose Up</code> with a leading U+FEFF never matched the
+    opening annotation, because <code>strings.TrimSpace</code> does not remove that character. The
+    parser reported <code>unexpected state 0</code>. The change strips one leading UTF-8 BOM from
+    the first scanned line. <code>TestUTF8ByteOrderMark</code> is the regression test. UTF-16 BOMs
+    are left as they were.
+  </p>
+  <p>
+    The pull request does not show a completed status check, and it is not merged. The longer
+    project note is on the <a href="/projects/">projects page</a>.
+  </p>
+</Base>

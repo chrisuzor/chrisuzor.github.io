@@ -11,15 +11,13 @@ const path = Astro.url.pathname;
 
 const links = [
   { href: '/', label: 'Home' },
-  { href: '/case-studies/incident-investigation/', label: 'Case study' },
-  { href: '/case-studies/transaction-risk/', label: 'Transaction risk' },
+  { href: '/case-studies/', label: 'Case Studies' },
+  { href: '/projects/', label: 'Projects' },
   { href: '/writing/', label: 'Writing' },
-  { href: '/repositories/', label: 'Projects' },
+  { href: '/open-source/', label: 'Open Source' },
   { href: '/cv/', label: 'CV' },
+  { href: '/contact/', label: 'Contact' },
 ];
-
-const shareDescription =
-  'I build reliable APIs, integrations, distributed workflows, and AI-assisted operational tools.';
 
 function current(href: string) {
   if (href === '/') return path === '/';
@@ -35,15 +33,19 @@ function current(href: string) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(path, Astro.site)} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={shareDescription} />
+    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={new URL(path, Astro.site)} />
-    <meta property="og:image" content={new URL('/christopher-uzochukwu-portrait.jpg', Astro.site)} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={shareDescription} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/og.jpg', Astro.site)} />
   </head>
   <body>
     <a class="skip" href="#content">Skip to content</a>
