@@ -64,6 +64,11 @@ test('answers keep the facts that are easy to overclaim', () => {
   const experience = parseCommand('experience').lines;
   assert.equal(experience[0], 'Yakili — Senior Backend Engineer.');
   assert.doesNotMatch(experience[0], /\d{4}/);
+  assert.equal(experience[1], 'Turing — AI Engineer (Part-time Contract) | May 2023–October 2025');
+  assert.equal(
+    experience[2],
+    'Paid software-engineering AI training and model evaluation, including reviewing model-generated code, reproducing failures, validating solutions, and providing structured technical feedback.',
+  );
   const risk = parseCommand('transaction-risk').lines.join(' ');
   assert.match(risk, /synthetic/i);
   const goose = parseCommand('open-source').lines.join(' ');

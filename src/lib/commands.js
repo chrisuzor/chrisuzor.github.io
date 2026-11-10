@@ -20,6 +20,8 @@ export const COMMANDS = [
     name: 'experience',
     lines: [
       'Yakili — Senior Backend Engineer.',
+      'Turing — AI Engineer (Part-time Contract) | May 2023–October 2025',
+      'Paid software-engineering AI training and model evaluation, including reviewing model-generated code, reproducing failures, validating solutions, and providing structured technical feedback.',
       'Mews — integrations and incident investigation.',
       'Flexkeeping — high-volume APIs and testing.',
       'Aardvark — Python microservices and AWS delivery.',
