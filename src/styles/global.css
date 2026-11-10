@@ -1,12 +1,12 @@
 :root {
-  color-scheme: dark;
-  --ink: #efe8dc;
-  --muted: #c8bba6;
-  --line: #3a332b;
-  --paper: #07090d;
-  --panel: #10161c;
-  --link: #f0c27a;
-  --focus: #f0c27a;
+  color-scheme: light;
+  --ink: #1a1a1a;
+  --muted: #3d3d3d;
+  --line: #c4c4c4;
+  --paper: #ffffff;
+  --panel: #f4f4f4;
+  --link: #0b3a82;
+  --focus: #0b3a82;
   --measure: 44rem;
   --shell: 76rem;
 }
@@ -22,9 +22,7 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background:
-    linear-gradient(180deg, rgb(240 194 122 / 6%), transparent 18rem),
-    var(--paper);
+  background: var(--paper);
   font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.6;
@@ -60,22 +58,17 @@ a:hover {
 }
 
 .status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 1.25rem;
   margin: 0;
-  padding: 0.55rem 1.25rem;
+  padding: 0.45rem 1.25rem;
   border-bottom: 1px solid var(--line);
-  background: #0c1218;
-  color: var(--muted);
+  background: var(--paper);
+  color: var(--ink);
   font-family: "SFMono-Regular", ui-monospace, Consolas, monospace;
   font-size: 0.78rem;
-  letter-spacing: 0.03em;
-}
-
-.status strong {
-  color: var(--link);
-  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .shell {
@@ -160,7 +153,7 @@ nav a[aria-current="page"] {
   min-width: 0;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--line);
-  background: #07090d;
+  background: var(--paper);
   color: var(--ink);
   font: inherit;
 }
@@ -201,8 +194,11 @@ nav a[aria-current="page"] {
 
 .console-log {
   margin-top: 0.75rem;
-  max-height: 16rem;
-  overflow: auto;
+}
+
+.console-log:empty {
+  display: none;
+  margin: 0;
 }
 
 .console-entry {
@@ -347,7 +343,7 @@ pre {
   margin: 0 0 1rem;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--line);
-  background: #0c1218;
+  background: var(--panel);
   font-size: 0.82rem;
   line-height: 1.45;
 }
@@ -391,7 +387,7 @@ pre {
 
 .download:hover {
   background: var(--link);
-  color: #1a140c;
+  color: #ffffff;
 }
 
 code {
@@ -406,141 +402,6 @@ footer {
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.95rem;
-}
-
-.boot {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  background: #07090d;
-  color: var(--link);
-  opacity: 0;
-  pointer-events: none;
-  font-family: "SFMono-Regular", ui-monospace, Consolas, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  animation: boot 1.15s ease forwards;
-}
-
-.boot p {
-  margin: 0.2rem 0;
-}
-
-@keyframes boot {
-  0% {
-    opacity: 1;
-  }
-  62% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-.core {
-  margin: 1.75rem 0 0.25rem;
-}
-
-.core figcaption {
-  margin: 0 0 0.45rem;
-  color: var(--muted);
-  font-family: "SFMono-Regular", ui-monospace, Consolas, monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-}
-
-.core-stage {
-  position: relative;
-  height: 11.5rem;
-}
-
-.core-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.core-lines line {
-  fill: none;
-  stroke: #e4d7c3;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: 4 5;
-  animation: core-flow 3.2s linear infinite;
-}
-
-.core-node,
-.core-stage li {
-  position: absolute;
-  z-index: 1;
-  margin: 0;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: "SFMono-Regular", ui-monospace, Consolas, monospace;
-  font-size: 0.78rem;
-}
-
-.core-node {
-  left: 50%;
-  top: 48%;
-  display: grid;
-  width: 4.25rem;
-  height: 4.25rem;
-  place-items: center;
-  border-color: var(--link);
-  border-radius: 50%;
-  color: var(--link);
-  transform: translate(-50%, -50%);
-}
-
-.core-stage ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.core-stage li {
-  padding: 0.15rem 0.5rem;
-  transform: translate(-50%, -50%);
-}
-
-.core-stage li:nth-child(1) {
-  left: 16%;
-  top: 16%;
-}
-
-.core-stage li:nth-child(2) {
-  left: 84%;
-  top: 16%;
-}
-
-.core-stage li:nth-child(3) {
-  left: 50%;
-  top: 84%;
-}
-
-@keyframes core-flow {
-  to {
-    stroke-dashoffset: -36;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .boot {
-    display: none;
-    animation: none;
-  }
-
-  .core-lines line {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
 }
 
 @media (max-width: 480px) {

@@ -49,21 +49,9 @@ function current(href: string) {
     <meta name="twitter:image" content={new URL('/og.jpg', Astro.site)} />
   </head>
   <body>
-    <div class="boot" aria-hidden="true">
-      <div>
-        <p>control plane</p>
-        <p>local catalog</p>
-        <p>routes ready</p>
-      </div>
-    </div>
     <a class="skip" href="#content">Skip to content</a>
     <a class="skip" href="#command">Skip to command</a>
-    <p class="status">
-      <span><strong>SYSTEM</strong> ONLINE</span>
-      <span><strong>ROLE</strong> senior backend / full-stack</span>
-      <span><strong>LOCATION</strong> Nigeria remote global</span>
-      <span><strong>FOCUS</strong> reliable backend systems, distributed workflows, applied AI</span>
-    </p>
+    <p class="status">SYSTEM ONLINE · senior backend · Nigeria</p>
     <div class="shell">
       <header>
         <p class="site-name"><a href="/">Christopher Uzochukwu</a></p>
@@ -144,8 +132,7 @@ function current(href: string) {
             }
             entry.append(list);
           }
-          log.append(entry);
-          entry.scrollIntoView({ block: 'nearest' });
+          log.replaceChildren(entry);
         };
 
         const run = (value: string) => {
