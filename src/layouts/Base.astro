@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { COMMAND_NAMES } from '../lib/commands.js';
 
 interface Props {
   title: string;
@@ -48,8 +49,22 @@ function current(href: string) {
     <meta name="twitter:image" content={new URL('/og.jpg', Astro.site)} />
   </head>
   <body>
+    <div class="boot" aria-hidden="true">
+      <div>
+        <p>control plane</p>
+        <p>local catalog</p>
+        <p>routes ready</p>
+      </div>
+    </div>
     <a class="skip" href="#content">Skip to content</a>
-    <div class="frame">
+    <a class="skip" href="#command">Skip to command</a>
+    <p class="status">
+      <span><strong>SYSTEM</strong> ONLINE</span>
+      <span><strong>ROLE</strong> senior backend / full-stack</span>
+      <span><strong>LOCATION</strong> Nigeria remote global</span>
+      <span><strong>FOCUS</strong> reliable backend systems, distributed workflows, applied AI</span>
+    </p>
+    <div class="shell">
       <header>
         <p class="site-name"><a href="/">Christopher Uzochukwu</a></p>
         <nav aria-label="Site">
@@ -66,6 +81,26 @@ function current(href: string) {
           </ul>
         </nav>
       </header>
+      <section class="console" aria-labelledby="console-label">
+        <p class="console-label" id="console-label">Command palette</p>
+        <form id="command" action="#command">
+          <label class="prompt" for="command-input">&gt;</label>
+          <input id="command-input" name="command" autocomplete="off" spellcheck="false" placeholder="help" />
+          <button type="submit">Run</button>
+        </form>
+        <ul class="suggestions">
+          {
+            COMMAND_NAMES.map((name) => (
+              <li>
+                <button type="button" data-command={name}>
+                  {name}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="console-log" id="command-log" aria-live="polite"></div>
+      </section>
       <main id="content">
         <slot />
       </main>
@@ -73,5 +108,69 @@ function current(href: string) {
         <p><a href="https://github.com/chrisuzor">GitHub</a> · <a href="https://www.linkedin.com/in/chris-uzor/">LinkedIn</a> · Abuja, Nigeria · GMT+1</p>
       </footer>
     </div>
+    <script>
+      import { parseCommand } from '../lib/commands.js';
+
+      const form = document.querySelector<HTMLFormElement>('#command');
+      const input = document.querySelector<HTMLInputElement>('#command-input');
+      const log = document.querySelector<HTMLElement>('#command-log');
+      if (form && input && log) {
+        const paint = (echo: string, result: ReturnType<typeof parseCommand>) => {
+          if (result.type === 'clear') {
+            log.replaceChildren();
+            return;
+          }
+          const entry = document.createElement('div');
+          entry.className = 'console-entry';
+          const echoed = document.createElement('p');
+          echoed.className = 'console-echo';
+          echoed.textContent = `> ${echo.trim()}`;
+          entry.append(echoed);
+          for (const line of result.lines) {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = line;
+            entry.append(paragraph);
+          }
+          if (result.links.length) {
+            const list = document.createElement('ul');
+            list.className = 'console-links';
+            for (const link of result.links) {
+              const item = document.createElement('li');
+              const anchor = document.createElement('a');
+              anchor.href = link.href;
+              anchor.textContent = link.label;
+              item.append(anchor);
+              list.append(item);
+            }
+            entry.append(list);
+          }
+          log.append(entry);
+          entry.scrollIntoView({ block: 'nearest' });
+        };
+
+        const run = (value: string) => {
+          paint(value, parseCommand(value));
+        };
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          run(input.value);
+          input.value = '';
+        });
+
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') input.blur();
+        });
+
+        for (const button of document.querySelectorAll<HTMLButtonElement>('[data-command]')) {
+          button.addEventListener('click', () => {
+            const name = button.dataset.command || '';
+            input.value = name;
+            run(name);
+            input.focus();
+          });
+        }
+      }
+    </script>
   </body>
 </html>
