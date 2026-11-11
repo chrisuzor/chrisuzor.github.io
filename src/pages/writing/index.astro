@@ -8,6 +8,13 @@ import Base from '../../layouts/Base.astro';
 >
   <h1>Writing</h1>
   <p>Notes on decisions in the public projects.</p>
+  <h2>Why a retry has to be safe to repeat</h2>
+  <p class="dateline">11 November 2026 · Africa/Lagos</p>
+  <p>
+    <a href="/writing/retries-need-idempotency/">Read the article</a>. A second try only helps if it
+    does not do the work twice. FleetPilot waits 100 ms, 200 ms, 400 ms, and 800 ms, then marks the
+    job dead on the fifth provider failure.
+  </p>
   <h2>Desired state, one lock, and a short retry</h2>
   <p class="dateline">29 October 2026 · Africa/Lagos</p>
   <p>

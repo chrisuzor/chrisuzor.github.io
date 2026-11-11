@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="Why a retry has to be safe to repeat — Christopher Uzochukwu"
+  description="A second try only helps if it does not do the work twice. FleetPilot waits 100 ms, 200 ms, 400 ms, and 800 ms, then stops on the fifth provider failure."
+>
+  <h1>Why a retry has to be safe to repeat</h1>
+  <p class="dateline">Christopher Uzochukwu · 11 November 2026 · Africa/Lagos</p>
+  <p>
+    Public repository: <a href="https://github.com/chrisuzor/fleetpilot">github.com/chrisuzor/fleetpilot</a>.
+    The housemates note is
+    <a href="/writing/fleetpilot-reconciliation/">Desired state, one lock, and a short retry</a>.
+  </p>
+  <p>
+    You tap pay. The card machine thinks for long enough that the person behind you starts a
+    relationship with a biscuit packet. Your thumb wants another tap.
+  </p>
+  <p>
+    Leave it. A quiet machine is not a failed payment. It may have taken the money and then lost
+    the rest of the sentence. The second tap is a retry. It is only kind if the shop treats "pay
+    for this once" as one purchase, however many times the request shows up.
+  </p>
+
+  <h2>One person, twice</h2>
+  <p>
+    Dayo and Ayo, in that other note, both came home with rice. Each of them looked at an empty
+    cupboard and acted before the other got back. That is two people.
+  </p>
+  <p>
+    A retry is one person, twice, because the first try looked like nothing. The cupboard is the
+    same shape. If the first trip already bought the rice and the answer got lost on the way home,
+    the second trip should find the rice and stop. It should not buy another bag to be thorough.
+  </p>
+
+  <h2>The second apply has to be boring</h2>
+  <p>
+    FleetPilot is a small simulation of that. The desired fleet sits in PostgreSQL. What currently
+    exists sits in a fake provider in the same process. A machine there is only a record.
+    FleetPilot does not boot a real server or call a cloud API.
+  </p>
+  <p>
+    The worker is what changes the record. Create, update, and delete are written so a second
+    apply can be boring. If the name is already present, create returns success and does not call
+    create again. If the name is already gone, delete returns success. An update whose spec
+    already matches returns without calling update. The same checks apply when a running job is
+    claimed again after 30 seconds without moving.
+  </p>
+  <p>
+    That is the trick. A retry asks again. The apply notices when the ask already landed. Without
+    that, the retry is just a second request with a nicer name.
+  </p>
+
+  <h2>Four waits, then stop</h2>
+  <p>
+    A provider error is counted. The default budget is five attempts. After the first four
+    failures the job returns to pending. The waits are 100 ms, 200 ms, 400 ms, and 800 ms. The
+    fifth provider failure does not wait. The job is marked dead, and the name is free for a later
+    reconcile to enqueue a new job if the two sides still differ.
+  </p>
+  <p>
+    The stop keeps a permanent error from asking forever. The idempotent apply keeps the earlier
+    asks from stacking records while those four waits run. Four polite delays do not help if each
+    one creates another machine.
+  </p>
+  <p>
+    A held lock, or a cancelled context, is not one of those five. Those paths put the job back
+    and leave the attempt count where it was. The budget is for the provider failing, not for two
+    workers meeting on the same name. The housemates note is about that lock.
+  </p>
+</Base>

@@ -82,10 +82,15 @@ export const COMMANDS = [
   },
   {
     name: 'writing',
-    lines: ['Writing is the FleetPilot note: desired state, one lock, and a short retry.'],
+    lines: [
+      'Two FleetPilot notes.',
+      'Desired state, one lock, and a short retry.',
+      'Why a retry has to be safe to repeat: waits of 100 ms, 200 ms, 400 ms, and 800 ms, then dead on the fifth provider failure. The apply is safe to repeat.',
+    ],
     links: [
       { href: '/writing/', label: 'Writing' },
-      { href: '/writing/fleetpilot-reconciliation/', label: 'FleetPilot article' },
+      { href: '/writing/fleetpilot-reconciliation/', label: 'Desired state, one lock, and a short retry' },
+      { href: '/writing/retries-need-idempotency/', label: 'Why a retry has to be safe to repeat' },
     ],
   },
   {
